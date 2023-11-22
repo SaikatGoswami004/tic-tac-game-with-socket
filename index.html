@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Tic-Tac Game</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <h1>Tic-Tac Game</h1>
+    <div>
+      <p id="user">You : <span id="userName"></span></p>
+      <p id="opponent">Opponent : <span id="opponentName"></span></p>
+    </div>
+    <br />
+
+    <p id="valueC">Your are playing as <span id="value"></span></p>
+    <br />
+    <p id="whosTurn">X's Turn</p>
+    <div>
+      <p id="enterName">Enter your name :</p>
+      <input
+        type="text"
+        name=""
+        id="name"
+        placeholder="Name"
+        autocomplete="off"
+      />
+    </div>
+    <button id="find">Search for Opponent</button>
+    <img src="" alt="Loading" id="loading" />
+    <div id="bigContainer">
+      <div id="container">
+        <button id="btn1" class="btn"></button>
+        <button id="btn2" class="btn"></button>
+        <button id="btn3" class="btn"></button><br />
+        <button id="btn4" class="btn"></button>
+        <button id="btn5" class="btn"></button>
+        <button id="btn6" class="btn"></button><br />
+        <button id="btn7" class="btn"></button>
+        <button id="btn8" class="btn"></button>
+        <button id="btn9" class="btn"></button>
+      </div>
+    </div>
+  </body>
+  <script>
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("bigContainer").style.display = "none";
+    document.getElementById("user").style.display = "none";
+    document.getElementById("opponent").style.display = "none";
+    document.getElementById("valueC").style.display = "none";
+    document.getElementById("whosTurn").style.display = "none";
+
+    const socket = io();
+
+    let name;
+
+    document.getElementById("find").addEventListener("click", function () {
+      name = document.getElementById("name").value;
+      document.getElementById("user").innerText = name;
+      if (name == null || name == "") {
+        alert("Enter  a name");
+      } else {
+        socket.emit("find", { name: name });
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("find").disable = true;
+      }
+    });
+    socket.on("find", (e) => {
+      let allPlayersArr = e.allPlayers;
+      console.log(allPlayersArr);
+
+      document.getElementById("user").style.display = "block";
+      document.getElementById("opponent").style.display = "block";
+      document.getElementById("valueC").style.display = "block";
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("name").style.display = "none";
+      document.getElementById("find").style.display = "none";
+      document.getElementById("enterName").style.display = "none";
+      document.getElementById("bigContainer").style.display = "block";
+      document.getElementById("whosTurn").style.display = "block";
+      document.getElementById("whosTurn").innerText = "X's Turn";
+
+      let oppName;
+      let value;
+
+      const foundObj = allPlayersArr.find(
+        (obj) => obj.p1.p1Name == `${name}` || obj.p2.p2Name == `${name}`
+      );
+
+      foundObj.p1.p1Name == `${name}`
+        ? (oppName = foundObj.p2.p2Name)
+        : (oppName = foundObj.p1.p1Name);
+      foundObj.p1.p1Name == `${name}`
+        ? (value = foundObj.p1.p1Value)
+        : (value = foundObj.p2.p2Value);
+      document.getElementById("opponentName").innerText = oppName;
+      document.getElementById("value").innerText = value;
+    });
+
+    document.querySelectorAll(".btn").forEach((e) => {
+      e.addEventListener("click", function () {
+        let value = document.getElementById("value").innerText;
+        e.innerText = value;
+        socket.emit("playing", { value: value, id: e.id, name: name });
+      });
+    });
+    socket.on("playing", (e) => {
+      const foundObj = e.allPlayers.find(
+        (obj) => obj.p1.p1Name == `${name}` || obj.p2.p2Name == `${name}`
+      );
+      console.log("play", foundObj);
+      p1id = foundObj.p1.p1Move;
+      p2id = foundObj.p2.p2Move;
+      if (foundObj.sum % 2 == 0) {
+        document.getElementById("whosTurn").innerText = "Y's Turn";
+      } else {
+        document.getElementById("whosTurn").innerText = "X's Turn";
+      }
+      if (p1id != "") {
+        document.getElementById(`${p1id}`).innerText = "X";
+        document.getElementById(`${p1id}`).disable = true;
+        document.getElementById(`${p1id}`).style.color = "black";
+      }
+      if (p2id != "") {
+        document.getElementById(`${p2id}`).innerText = "Y";
+        document.getElementById(`${p2id}`).disable = true;
+        document.getElementById(`${p2id}`).style.color = "black";
+      }
+      check(name, foundObj.sum);
+    });
+    function check(name, sum) {
+      document.getElementById("btn1").innerText = ""
+        ? (b1 = "a")
+        : (b1 = document.getElementById("btn1").innerText);
+      document.getElementById("btn2").innerText = ""
+        ? (b2 = "b")
+        : (b2 = document.getElementById("btn2").innerText);
+      document.getElementById("btn3").innerText = ""
+        ? (b3 = "c")
+        : (b3 = document.getElementById("btn3").innerText);
+      document.getElementById("btn4").innerText = ""
+        ? (b4 = "d")
+        : (b4 = document.getElementById("btn4").innerText);
+      document.getElementById("btn5").innerText = ""
+        ? (b5 = "e")
+        : (b5 = document.getElementById("btn5").innerText);
+      document.getElementById("btn6").innerText = ""
+        ? (b6 = "f")
+        : (b6 = document.getElementById("btn6").innerText);
+      document.getElementById("btn7").innerText = ""
+        ? (b7 = "g")
+        : (b7 = document.getElementById("btn7").innerText);
+      document.getElementById("btn8").innerText = ""
+        ? (b8 = "h")
+        : (b8 = document.getElementById("btn8").innerText);
+      document.getElementById("btn9").innerText = ""
+        ? (b9 = "i")
+        : (b9 = document.getElementById("btn9").innerText);
+
+      console.log("b1", b1);
+      console.log("b2", b2);
+      console.log("b3", b3);
+      console.log("b4", b4);
+      console.log("b5", b5);
+      console.log("b6", b6);
+      console.log("b7", b7);
+      console.log("b8", b8);
+      console.log("b9", b9);
+
+      if (
+        (b1 === b2 && b2 === b3) ||
+        (b4 === b5 && b5 === b6) ||
+        (b7 === b8 && b8 === b9) ||
+        (b1 === b4 && b4 === b7) ||
+        (b2 === b5 && b5 === b8) ||
+        (b3 === b6 && b6 === b9) ||
+        (b1 === b5 && b5 === b9) ||
+        (b3 === b5 && b5 === b7)
+      ) {
+        socket.emit("gameOver", { name: name });
+        // console.log(sum);
+        console.log("hiiii");
+        // setTimeout(() => {
+        //   sum % 2 == 0 ? alert("X WON") : alert("Y WON");
+        //   // setTimeout(() => {
+        //   //   location.reload();
+        //   // }, 2000);
+        // }, 1000);
+      } else if (sum == 10) {
+        socket.emit("gameOver", { name: name });
+        setTimeout(() => {
+          alert("Draw!!!!");
+
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        }, 100);
+      }
+    }
+  </script>
+</html>

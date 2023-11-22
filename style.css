@@ -1,0 +1,14 @@
+#bigContainer {
+  height: 15rem;
+  width: 30rem;
+}
+#container {
+  height: 15rem;
+  width: 30rem;
+  padding: 4rem 6rem;
+}
+.btn {
+  height: 3rem;
+  width: 4rem;
+  margin: 0.1rem;
+}
